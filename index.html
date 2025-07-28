@@ -1,0 +1,100 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HackRx Insurance RAG</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f6f9fc;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>HackRx RAG Question Answering</h1>
+
+  <label for="token">API Token (Bearer)</label>
+  <input type="text" id="token" placeholder="e.g., supersecretkey123" />
+
+  <label for="pdf">PDF URL</label>
+  <input type="text" id="pdf" placeholder="https://...policy.pdf" />
+
+  <label for="questions">Questions (one per line)</label>
+  <textarea id="questions" rows="6" placeholder="Enter questions here..."></textarea>
+
+  <button onclick="submitRAG()">Submit</button>
+
+  <div class="result" id="resultBox"></div>
+
+  <script>
+    async function submitRAG() {
+      const token = document.getElementById("token").value.trim();
+      const pdf = document.getElementById("pdf").value.trim();
+      const questions = document
+        .getElementById("questions")
+        .value.trim()
+        .split('\n')
+        .filter(q => q.trim() !== '');
+
+      if (!pdf || questions.length === 0 || !token) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const payload = {
+        documents: pdf,
+        questions: questions
+      };
+
+      try {
+        const res = await fetch("/hackrx/run", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          document.getElementById("resultBox").innerText = "❌ Error: " + JSON.stringify(data.detail, null, 2);
+        } else {
+          document.getElementById("resultBox").innerText = "✅ Answers:\n\n" + data.map((a, i) => `${i + 1}. ${a}`).join("\n\n");
+        }
+      } catch (err) {
+        document.getElementById("resultBox").innerText = "❌ Request failed:\n" + err;
+      }
+    }
+  </script>
+</body>
+</html>
