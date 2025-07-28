@@ -1,0 +1,30 @@
+# Requirements for Anj2307/random
+
+# FastAPI web framework
+fastapi
+
+# ASGI server for FastAPI
+uvicorn
+
+# For working with environment variables
+python-dotenv
+
+# For HTTP requests
+requests
+
+# For static files and templating
+jinja2
+
+# For data validation
+pydantic
+
+# Core dependencies for RAG pipeline and document loading
+langchain
+langchain-community
+langchain-openai
+
+# Embeddings and vector database
+sentence-transformers
+faiss-cpu
+
+# If
